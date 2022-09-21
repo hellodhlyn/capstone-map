@@ -7,15 +7,15 @@ function App() {
 
   return (
     <div className="App flex flex-col h-screen w-full">
-      <div className="p-8 text-4xl font-black">Capstone Map</div>
-      <div className="flex flex-grow border-t">
+      <div className="p-4 md:p-8 text-3xl md:text-4xl font-black">Capstone Map</div>
+      <div className="flex flex-grow flex-col-reverse md:flex-row border-t">
         <div className="flex-grow border-r">
           <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ""}>
             <Map onClick={(coord) => { setCoords((old) => [...old, coord]); }} />
           </Wrapper>
         </div>
 
-        <div className="w-1/4">
+        <div className="h-1/3 w-full md:h-full md:w-1/4 overflow-auto">
           <p className="p-4 text-2xl font-black">좌표 마킹</p>
           <div className="px-4 py-2">
             <button

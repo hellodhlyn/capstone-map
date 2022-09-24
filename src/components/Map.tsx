@@ -18,6 +18,7 @@ export default function Map({ onClick }: MapProps) {
         onClick({
           lat: e.latLng?.lat()!,
           lng: e.latLng?.lng()!,
+          height: null,
         });
       });
     }

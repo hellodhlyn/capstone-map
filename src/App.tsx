@@ -1,9 +1,51 @@
 import React, { useState } from "react";
 import { Wrapper } from "@googlemaps/react-wrapper";
-import Map from "./Map";
+import Map from "./components/Map";
+import BuildingList from "./components/BuildingList";
+import BuildingAdd from "./components/BuildingAdd";
+import BuildingLoad from "./components/BuildingLoad";
+
+type SidebarMode = "list" | "add" | "load";
 
 function App() {
   const [coords, setCoords] = useState<Coordinate[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("list");
+
+  let sidebar;
+  switch (sidebarMode) {
+    case "list":
+      sidebar = <BuildingList
+        buildings={buildings}
+        onAddMode={() => { setSidebarMode("add"); }}
+        onLoadMode={() => { setSidebarMode("load"); }}
+      />;
+      break;
+
+    case "add":
+      sidebar = <BuildingAdd
+        coords={coords}
+        onComplete={(building) => {
+          if (building) {
+            setBuildings((old) => [...old, building]);
+          }
+          setCoords([]);
+          setSidebarMode("list");
+        }}
+      />
+      break;
+
+    case "load":
+      sidebar = <BuildingLoad
+        onLoad={(buildings) => {
+          setBuildings(buildings);
+          setSidebarMode("list");
+        }}
+        onCancel={() => {
+          setSidebarMode("list");
+        }}
+      />
+  }
 
   return (
     <div className="App flex flex-col h-screen w-full">
@@ -16,24 +58,7 @@ function App() {
         </div>
 
         <div className="h-1/3 w-full md:h-full md:w-1/4 overflow-auto">
-          <p className="p-4 text-2xl font-black">좌표 마킹</p>
-          <div className="px-4 py-2">
-            <button
-              type="button"
-              className="px-2 py-1 bg-black text-white rounded hover:opacity-75 transition"
-              onClick={() => { setCoords([]); }}
-            >
-              초기화
-            </button>
-          </div>
-          {coords.map(({ lat, lng }) => {
-            return (
-              <p className="px-4 py-2 border-t" key={`coord-${lat}-${lng}`}>
-                lat: {lat}<br />
-                lng: {lng}
-              </p>
-            );
-          })}
+          {sidebar}
         </div>
       </div>
     </div>

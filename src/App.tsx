@@ -17,7 +17,10 @@ function App() {
     case "list":
       sidebar = <BuildingList
         buildings={buildings}
-        onAddMode={() => { setSidebarMode("add"); }}
+        onAddMode={() => {
+          setCoords([]);
+          setSidebarMode("add");
+        }}
         onLoadMode={() => { setSidebarMode("load"); }}
       />;
       break;
@@ -53,7 +56,10 @@ function App() {
       <div className="flex flex-grow flex-col-reverse md:flex-row border-t">
         <div className="flex-grow border-r">
           <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ""}>
-            <Map onClick={(coord) => { setCoords((old) => [...old, coord]); }} />
+            <Map
+              onClick={(coord) => { setCoords((old) => [...old, coord]);}}
+              buildings={buildings}
+            />
           </Wrapper>
         </div>
 

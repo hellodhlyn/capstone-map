@@ -3,23 +3,25 @@ import { useEffect, useRef, useState } from "react";
 type MapProps = {
   onClick: (coord: Coordinate) => void;
   buildings: Building[];
+  coords: Coordinate[];
 };
 
 export default function Map(
-  { onClick, buildings }: MapProps,
+  { onClick, buildings, coords }: MapProps,
 ) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
-  const [polygons, setPolygon] = useState<google.maps.Polygon[]>([]);
+  const [polyline, setPolyline] = useState<google.maps.Polyline>();
+  const [polygons, setPolygons] = useState<google.maps.Polygon[]>([]);
 
   useEffect(() => {
     if (mapRef.current && !map) {
-      const map = new window.google.maps.Map(mapRef.current, {
+      const newMap = new window.google.maps.Map(mapRef.current, {
         center: { lat: 37.562900, lng: 126.937190 },
         zoom: 18,
       });
 
-      map.addListener("click", (e: google.maps.MapMouseEvent) => {
+      newMap.addListener("click", (e: google.maps.MapMouseEvent) => {
         onClick({
           lat: e.latLng?.lat()!,
           lng: e.latLng?.lng()!,
@@ -27,7 +29,7 @@ export default function Map(
         });
       });
 
-      setMap(map);
+      setMap(newMap);
     }
   }, [mapRef]);
 
@@ -42,7 +44,7 @@ export default function Map(
         paths: building.coordinates,
         strokeColor: "#B91C1C",
         strokeOpacity: 0.8,
-        strokeWeight: 2,
+        strokeWeight: 1,
         fillColor: "#B91C1C",
         fillOpacity: 0.35,
       });
@@ -50,8 +52,25 @@ export default function Map(
       polygon.setMap(map);
       return polygon;
     });
-    setPolygon(newPolygons);
-  }, [buildings]);
+    setPolygons(newPolygons);
+  }, [map, buildings]);
+
+  useEffect(() => {
+    if (!map) {
+      return;
+    }
+
+    polyline?.setMap(null);
+    const newPolyline = new google.maps.Polyline({
+      path: coords,
+      strokeColor: "#B91C1C",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+    });
+
+    newPolyline.setMap(map);
+    setPolyline(newPolyline);
+  }, [map, coords]);
 
   return <div className="map h-full w-full" ref={mapRef} />;
 }

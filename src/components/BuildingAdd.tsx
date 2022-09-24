@@ -4,10 +4,12 @@ import { useState } from "react";
 type BuildingAddProps = {
   coords: Coordinate[];
   onComplete: (building?: Building) => void;
+  onReset: () => void;
+  onCancel: () => void;
 };
 
 export default function BuildingAdd(
-  { coords, onComplete }: BuildingAddProps,
+  { coords, onComplete, onReset, onCancel }: BuildingAddProps,
 ) {
   const [name, setName] = useState<string>("");
   return (
@@ -31,12 +33,12 @@ export default function BuildingAdd(
       </div>
       <div className="px-4 py-2">
         <Button text="완료" onClick={() => {
-          if (coords.length === 0) {
-            onComplete();
-          } else {
+          if (name.length > 0 && coords.length > 0) {
             onComplete({ name, coordinates: coords })
           }
         }} />
+        <Button text="초기화" onClick={() => { onReset(); }} />
+        <Button text="취소" onClick={() => { onCancel(); }} />
       </div>
     </div>
   );

@@ -15,11 +15,6 @@ function saveBuildings(buildings: Building[]) {
   window.localStorage.setItem(localStorageKey, JSON.stringify(buildings));
 }
 
-async function loadBuildings(): Promise<Building[]> {
-  const jsonValue = window.localStorage.getItem(localStorageKey);
-  return jsonValue ? JSON.parse(jsonValue) : getBuildings();
-}
-
 function App() {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("list");
@@ -29,7 +24,7 @@ function App() {
 
   useEffect(() => {
     if (!loaded) {
-      loadBuildings().then((buildings) => {
+      getBuildings().then((buildings) => {
         setBuildings(buildings);
         setLoaded(true);
       });

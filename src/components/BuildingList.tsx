@@ -27,18 +27,25 @@ function BuildingItem(
 type BuildingListProps = {
   buildings: Building[];
   onAddMode: () => void;
+  onSaveMode: () => void;
   onLoadMode: () => void;
   onRemoveBuilding: (building: Building) => void;
 };
 
 export default function BuildingList(
-  { buildings, onAddMode, onLoadMode, onRemoveBuilding }: BuildingListProps,
+  { buildings, onAddMode, onSaveMode, onLoadMode, onRemoveBuilding }: BuildingListProps,
 ) {
   return (
     <div>
       <h1 className="p-4 text-2xl font-black">건물 목록</h1>
-      <div className="px-4 py-2">
+      <div className="px-4 pt-2">
         <Button text="추가" onClick={() => { onAddMode(); }} />
+        <Button text="저장" onClick={() => { onSaveMode(); }} />
+      </div>
+      <div className="px-4 pt-2">
+        <Button text="서버 주소 복사" useClicked={true} onClick={async () => {
+          await navigator.clipboard.writeText("https://capstone-api.lyn.workers.dev/buildings.json");
+        }} />
         <Button
           text="JSON 복사"
           onClick={async () => { await copyToClipboard(buildings); }}

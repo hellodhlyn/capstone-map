@@ -1,17 +1,30 @@
 import Button from "../elements/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type BuildingAddProps = {
-  coords: Coordinate[];
+  clickedCoord: Coordinate | null;
+  setDraft: (building: Building) => void;
   onComplete: (building?: Building) => void;
   onReset: () => void;
   onCancel: () => void;
 };
 
 export default function BuildingAdd(
-  { coords, onComplete, onReset, onCancel }: BuildingAddProps,
+  { clickedCoord, setDraft, onComplete, onReset, onCancel }: BuildingAddProps,
 ) {
   const [name, setName] = useState<string>("");
+  const [coords, setCoords] = useState<Coordinate[]>([]);
+
+  useEffect(() => {
+    if (clickedCoord) {
+      setCoords((old) => {
+        const newCoords = [...old, clickedCoord];
+        setDraft({ name, coordinates: newCoords });
+        return newCoords;
+      });
+    }
+  }, [clickedCoord]);
+
   return (
     <div>
       <h1 className="p-4 text-2xl font-black">건물 추가</h1>

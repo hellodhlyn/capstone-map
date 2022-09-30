@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 type MapProps = {
   onClick: (coord: Coordinate) => void;
   buildings: Building[];
-  coords: Coordinate[];
+  draftBuilding: Building | null;
 };
 
 export default function Map(
-  { onClick, buildings, coords }: MapProps,
+  { onClick, buildings, draftBuilding }: MapProps,
 ) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
@@ -61,8 +61,12 @@ export default function Map(
     }
 
     polyline?.setMap(null);
+    if (!draftBuilding) {
+      return;
+    }
+
     const newPolyline = new google.maps.Polyline({
-      path: coords,
+      path: draftBuilding.coordinates,
       strokeColor: "#B91C1C",
       strokeOpacity: 0.8,
       strokeWeight: 2,
@@ -70,7 +74,7 @@ export default function Map(
 
     newPolyline.setMap(map);
     setPolyline(newPolyline);
-  }, [map, coords]);
+  }, [map, draftBuilding]);
 
   return <div className="map h-full w-full" ref={mapRef} />;
 }

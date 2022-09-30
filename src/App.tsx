@@ -19,8 +19,9 @@ function App() {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("list");
 
-  const [coords, setCoords] = useState<Coordinate[]>([]);
+  const [clickedCoord, setClickedCoord] = useState<Coordinate | null>(null);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [draftBuilding, setDraftBuilding] = useState<Building | null>(null);
 
   useEffect(() => {
     if (!loaded) {
@@ -43,7 +44,6 @@ function App() {
       sidebar = <BuildingList
         buildings={buildings || []}
         onAddMode={() => {
-          setCoords([]);
           setSidebarMode("add");
         }}
         onLoadMode={() => {
@@ -60,19 +60,18 @@ function App() {
 
     case "add":
       sidebar = <BuildingAdd
-        coords={coords}
+        clickedCoord={clickedCoord}
+        setDraft={setDraftBuilding}
         onComplete={(building) => {
           if (building) {
             setBuildings((old) => [...(old || []), building]);
           }
-          setCoords([]);
+          setDraftBuilding(null);
           setSidebarMode("list");
         }}
         onReset={() => {
-          setCoords([]);
         }}
         onCancel={() => {
-          setCoords([]);
           setSidebarMode("list");
         }}
       />
@@ -110,11 +109,9 @@ function App() {
         <div className="flex-grow border-r">
           <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ""}>
             <Map
-              onClick={(coord) => {
-                setCoords((old) => [...old, coord]);
-              }}
+              onClick={(coord) => { setClickedCoord(coord); }}
               buildings={buildings}
-              coords={coords}
+              draftBuilding={draftBuilding}
             />
           </Wrapper>
         </div>

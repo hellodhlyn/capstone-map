@@ -4,15 +4,17 @@ type MapProps = {
   onClick: (coord: Coordinate) => void;
   buildings: Building[];
   draftBuilding: Building | null;
+  markerCoord: Coordinate | null;
 };
 
 export default function Map(
-  { onClick, buildings, draftBuilding }: MapProps,
+  { onClick, buildings, draftBuilding, markerCoord }: MapProps,
 ) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [polyline, setPolyline] = useState<google.maps.Polyline>();
   const [polygons, setPolygons] = useState<google.maps.Polygon[]>([]);
+  const [marker, setMarker] = useState<google.maps.Marker | null>(null);
 
   useEffect(() => {
     if (mapRef.current && !map) {
@@ -75,6 +77,21 @@ export default function Map(
     newPolyline.setMap(map);
     setPolyline(newPolyline);
   }, [map, draftBuilding]);
+
+  useEffect(() => {
+    if (!map) {
+      return;
+    }
+
+    marker?.setMap(null);
+    if (!markerCoord) {
+      return;
+    }
+
+    const newMarker = new google.maps.Marker({ position: markerCoord });
+    newMarker.setMap(map);
+    setMarker(newMarker);
+  }, [map, markerCoord]);
 
   return <div className="map h-full w-full" ref={mapRef} />;
 }

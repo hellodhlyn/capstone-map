@@ -7,10 +7,11 @@ async function copyToClipboard(buildings: Building[]) {
 type BuildingItemProps = {
   building: Building;
   onRemoveBuilding: (building: Building) => void;
+  onEditBuilding: (building: Building) => void;
 };
 
 function BuildingItem(
-  { building, onRemoveBuilding }: BuildingItemProps,
+  { building, onRemoveBuilding, onEditBuilding }: BuildingItemProps,
 ) {
   return (
     <div className="flex px-4 py-2 hover:bg-gray-100 transition">
@@ -18,6 +19,7 @@ function BuildingItem(
         <p className="font-bold">{building.name}</p>
       </div>
       <div>
+        <Button text="편집" onClick={() => { onEditBuilding(building); }} />
         <Button text="삭제" onClick={() => { onRemoveBuilding(building); }} />
       </div>
     </div>
@@ -29,11 +31,15 @@ type BuildingListProps = {
   onAddMode: () => void;
   onSaveMode: () => void;
   onLoadMode: () => void;
+  onEditBuilding: (building: Building) => void;
   onRemoveBuilding: (building: Building) => void;
 };
 
 export default function BuildingList(
-  { buildings, onAddMode, onSaveMode, onLoadMode, onRemoveBuilding }: BuildingListProps,
+  {
+    buildings, onAddMode, onSaveMode, onLoadMode,
+    onRemoveBuilding, onEditBuilding,
+  }: BuildingListProps,
 ) {
   return (
     <div>
@@ -61,6 +67,7 @@ export default function BuildingList(
           <BuildingItem
             key={`building-${building.name}`}
             building={building}
+            onEditBuilding={onEditBuilding}
             onRemoveBuilding={onRemoveBuilding}
           />
         ))}

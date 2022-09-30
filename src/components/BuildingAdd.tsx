@@ -49,9 +49,16 @@ export default function BuildingAdd(
           if (name.length > 0 && coords.length > 0) {
             onComplete({ name, coordinates: coords })
           }
+          setCoords([]);
         }} />
-        <Button text="초기화" onClick={() => { onReset(); }} />
-        <Button text="취소" onClick={() => { onCancel(); }} />
+        <Button text="초기화" onClick={() => {
+          setCoords([]);
+          onReset();
+        }} />
+        <Button text="취소" onClick={() => {
+          setCoords([]);
+          onCancel();
+        }} />
       </div>
     </div>
   );

@@ -6,8 +6,9 @@ import BuildingAdd from "./components/BuildingAdd";
 import BuildingLoad from "./components/BuildingLoad";
 import BuildingSave from "./components/BuildingSave";
 import { getBuildings } from "./lib/client";
+import BuildingEdit from "./components/BuildingEdit";
 
-type SidebarMode = "list" | "add" | "load" | "save";
+type SidebarMode = "list" | "add" | "edit" | "load" | "save";
 
 const localStorageKey = 'capstone.buildings';
 
@@ -19,8 +20,10 @@ function App() {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("list");
 
+  const [marker, setMarker] = useState<Coordinate | null>(null);
   const [clickedCoord, setClickedCoord] = useState<Coordinate | null>(null);
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [buildingToEdit, setBuildingToEdit] = useState<Building | null>(null);
   const [draftBuilding, setDraftBuilding] = useState<Building | null>(null);
 
   useEffect(() => {
@@ -44,6 +47,7 @@ function App() {
       sidebar = <BuildingList
         buildings={buildings || []}
         onAddMode={() => {
+          setClickedCoord(null);
           setSidebarMode("add");
         }}
         onLoadMode={() => {
@@ -51,6 +55,11 @@ function App() {
         }}
         onSaveMode={() => {
           setSidebarMode("save");
+        }}
+        onEditBuilding={(toEdit) => {
+          setClickedCoord(null);
+          setBuildingToEdit(toEdit);
+          setSidebarMode("edit");
         }}
         onRemoveBuilding={(toRemove) => {
           setBuildings((old) => old.filter((b) => b.name !== toRemove.name));
@@ -70,8 +79,31 @@ function App() {
           setSidebarMode("list");
         }}
         onReset={() => {
+          setDraftBuilding(null);
         }}
         onCancel={() => {
+          setDraftBuilding(null);
+          setSidebarMode("list");
+        }}
+      />
+      break;
+
+    case "edit":
+      sidebar = <BuildingEdit
+        clickedCoord={clickedCoord}
+        building={buildingToEdit!}
+        setBuildingToEdit={setBuildingToEdit}
+        onHover={(hovered) => {
+          setMarker(hovered);
+        }}
+        onCancel={() => {
+          setMarker(null);
+          setBuildingToEdit(null);
+          setSidebarMode("list");
+        }}
+        onComplete={() => {
+          setBuildings((old) => old.map((b) => (b.name === buildingToEdit?.name) ? buildingToEdit : b))
+          setBuildingToEdit(null);
           setSidebarMode("list");
         }}
       />
@@ -110,8 +142,9 @@ function App() {
           <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ""}>
             <Map
               onClick={(coord) => { setClickedCoord(coord); }}
-              buildings={buildings}
+              buildings={buildings.map((b) => (buildingToEdit?.name === b.name) ? buildingToEdit : b)}
               draftBuilding={draftBuilding}
+              markerCoord={marker}
             />
           </Wrapper>
         </div>

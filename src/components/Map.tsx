@@ -27,7 +27,7 @@ export default function Map(
         onClick({
           lat: e.latLng?.lat()!,
           lng: e.latLng?.lng()!,
-          height: null,
+          alt: null,
         });
       });
 

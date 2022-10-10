@@ -1,7 +1,7 @@
 type Coordinate = {
   lat: number;
   lng: number;
-  height: number | null;
+  alt: number | null;
 };
 
 type Building = {

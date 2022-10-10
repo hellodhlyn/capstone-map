@@ -11,8 +11,8 @@ type BuildingEditProps = {
 };
 
 function isEqualCoords(a: Coordinate, b: Coordinate): boolean {
-  return Math.round(a.lng * (10 ** 6)) == Math.round(b.lng * (10 ** 6))
-    && Math.round(a.lat * (10 ** 6)) == Math.round(b.lat * (10 ** 6));
+  return Math.round(a.lng * (10 ** 6)) === Math.round(b.lng * (10 ** 6))
+    && Math.round(a.lat * (10 ** 6)) === Math.round(b.lat * (10 ** 6));
 }
 
 export default function BuildingEdit(
@@ -29,7 +29,7 @@ export default function BuildingEdit(
     }
 
     setBuildingToEdit({
-      name: building.name,
+      ...building,
       coordinates: building.coordinates.map((c) => isEqualCoords(c, editingCoord) ? clickedCoord : c),
     });
     setEditingCoord(null);
@@ -53,14 +53,31 @@ export default function BuildingEdit(
           onCancel();
         }} />
         <Button text="완료" onClick={() => {
+          setBuildingToEdit({ ...building });
           onComplete();
         }} />
       </div>
-      <div>
+      <div className="px-4 py-2">
+        <p className="py-2 text-sm font-bold">건물 높이 (m)</p>
+        <input
+          className="w-full p-2 border rounded"
+          type="number"
+          placeholder="39.0"
+          defaultValue={building.height || undefined}
+          onChange={(e) => {
+            const parsed = parseFloat(e.target.value);
+            if (!isNaN(parsed)) {
+              setBuildingToEdit({ ...building, height: parsed });
+            }
+          }}
+        />
+      </div>
+      <div className="px-4 py-2">
+        <p className="py-2 text-sm font-bold">좌표 목록</p>
         {building.coordinates.map((coord) => (
           <div
             key={`coord-${coord.lat},${coord.lng}`}
-            className="flex px-4 py-2 hover:bg-gray-100 transition"
+            className="flex py-2 hover:bg-gray-100 transition"
             onMouseEnter={() => { onHover(coord); }}
           >
             <div className="flex-grow">
@@ -70,7 +87,7 @@ export default function BuildingEdit(
               <Button text="편집" onClick={() => { setEditingCoord(coord); }} />
               <Button text="삭제" onClick={() => {
                 setBuildingToEdit({
-                  name: building.name,
+                  ...building,
                   coordinates: building.coordinates.filter((c) => !isEqualCoords(c, coord)),
                 })
               }} />

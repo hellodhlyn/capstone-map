@@ -136,8 +136,8 @@ function App() {
 
   return (
     <div className="App flex flex-col h-screen w-full">
-      <div className="p-4 md:p-8 text-3xl md:text-4xl font-black">Capstone Map</div>
-      <div className="flex flex-grow flex-col-reverse md:flex-row border-t">
+      <div className="flex-none p-4 md:p-8 text-3xl md:text-4xl font-black">Capstone Map Editor</div>
+      <div className="grow h-full min-h-0 flex flex-col-reverse md:flex-row border-t">
         <div className="flex-grow border-r">
           <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY || ""}>
             <Map
@@ -149,7 +149,7 @@ function App() {
           </Wrapper>
         </div>
 
-        <div className="h-1/3 w-full md:h-full md:w-1/4 overflow-auto">
+        <div className="h-1/3 w-full md:h-full md:w-1/4 overflow-y-scroll">
           {sidebar}
         </div>
       </div>

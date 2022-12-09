@@ -5,7 +5,7 @@ import BuildingList from "./components/BuildingList";
 import BuildingAdd from "./components/BuildingAdd";
 import BuildingLoad from "./components/BuildingLoad";
 import BuildingSave from "./components/BuildingSave";
-import { getBuildings } from "./lib/client";
+import { getBuildings, getRoute } from "./lib/client";
 import BuildingEdit from "./components/BuildingEdit";
 
 type SidebarMode = "list" | "add" | "edit" | "load" | "save";
@@ -26,10 +26,14 @@ function App() {
   const [buildingToEdit, setBuildingToEdit] = useState<Building | null>(null);
   const [draftBuilding, setDraftBuilding] = useState<Building | null>(null);
 
+  const [route, setRoute] = useState<Coordinate[]>([]);
+
   useEffect(() => {
     if (!loaded) {
-      getBuildings().then((buildings) => {
-        setBuildings(buildings);
+      Promise.all([
+        getBuildings().then((buildings) => setBuildings(buildings)),
+        getRoute().then((route) => setRoute(route)),
+      ]).then(() => {
         setLoaded(true);
       });
     }
@@ -144,6 +148,7 @@ function App() {
               onClick={(coord) => { setClickedCoord(coord); }}
               buildings={buildings.map((b) => (buildingToEdit?.name === b.name) ? buildingToEdit : b)}
               draftBuilding={draftBuilding}
+              route={route}
               markerCoord={marker}
             />
           </Wrapper>

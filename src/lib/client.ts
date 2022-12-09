@@ -5,6 +5,11 @@ export async function getBuildings(): Promise<Building[]> {
   return await result.json();
 }
 
+export async function getRoute(): Promise<Coordinate[]> {
+  const result = await fetch(`${endpoint}/route.json`);
+  return await result.json();
+}
+
 export async function storeBuildings(buildings: Building[]): Promise<Building[]> {
   const result = await fetch(`${endpoint}/buildings`, {
     method: "POST",

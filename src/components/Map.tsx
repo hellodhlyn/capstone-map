@@ -6,10 +6,11 @@ type MapProps = {
   draftBuilding: Building | null;
   route: Coordinate[];
   markerCoord: Coordinate | null;
+  closestRoutePoint: Coordinate | null;
 };
 
 export default function Map(
-  { onClick, buildings, draftBuilding, route, markerCoord }: MapProps,
+  { onClick, buildings, draftBuilding, route, markerCoord, closestRoutePoint }: MapProps,
 ) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
@@ -17,6 +18,8 @@ export default function Map(
   const [polygons, setPolygons] = useState<google.maps.Polygon[]>([]);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [routeLine, setRouteLine] = useState<google.maps.Polyline>();
+  const [closestRouteLine, setClosestRouteLine] = useState<google.maps.Polyline>();
+  const [clickedCoord, setClickedCoord] = useState<Coordinate | null>();
 
   useEffect(() => {
     if (mapRef.current && !map) {
@@ -26,11 +29,13 @@ export default function Map(
       });
 
       newMap.addListener("click", (e: google.maps.MapMouseEvent) => {
-        onClick({
+        const coord = {
           lat: e.latLng?.lat()!,
           lng: e.latLng?.lng()!,
           alt: null,
-        });
+        };
+        setClickedCoord(coord);
+        onClick(coord);
       });
 
       setMap(newMap);
@@ -115,6 +120,27 @@ export default function Map(
     newRouteLine.setMap(map);
     setRouteLine(newRouteLine);
   }, [map, route]);
+
+  useEffect(() => {
+    if (!map) {
+      return;
+    }
+
+    closestRouteLine?.setMap(null);
+    if (!clickedCoord || !closestRoutePoint) {
+      return;
+    }
+
+    const newClosestRouteLine = new google.maps.Polyline({
+      path: [clickedCoord, closestRoutePoint!],
+      strokeColor: "#364fC7",
+      strokeOpacity: 0.8,
+      strokeWeight: 4,
+    });
+
+    newClosestRouteLine.setMap(map);
+    setClosestRouteLine(newClosestRouteLine);
+  }, [map, clickedCoord, closestRoutePoint]);
 
   return <div className="map h-full w-full" ref={mapRef} />;
 }

@@ -16,6 +16,18 @@ function saveBuildings(buildings: Building[]) {
   window.localStorage.setItem(localStorageKey, JSON.stringify(buildings));
 }
 
+function distanceOf(a: Coordinate, b: Coordinate): number {
+  return Math.sqrt(Math.pow(a.lat - b.lat, 2) + Math.pow(a.lng - b.lng, 2));
+}
+
+function weightedCoord(a: Coordinate, b: Coordinate, weight: number): Coordinate {
+  return {
+    lat: a.lat * weight + b.lat * (1 - weight),
+    lng: a.lng * weight + b.lng * (1 - weight),
+    alt: null,
+  };
+}
+
 function App() {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("list");
@@ -25,8 +37,47 @@ function App() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [buildingToEdit, setBuildingToEdit] = useState<Building | null>(null);
   const [draftBuilding, setDraftBuilding] = useState<Building | null>(null);
-
+  const [closestRoutePoint, setClosestRoutePoint] = useState<Coordinate | null>(null);
   const [route, setRoute] = useState<Coordinate[]>([]);
+
+  // Set closest route point.
+  useEffect(() => {
+    if (!clickedCoord || route.length === 0) {
+      return;
+    }
+
+    let dist = Number.MAX_VALUE;
+    let closestPointIndex = 0;
+    for (let i = 1; i < route.length - 1; i++) {
+      const coordDist = distanceOf(route[i], clickedCoord);
+      if (coordDist < dist) {
+        dist = coordDist;
+        closestPointIndex = i;
+      }
+    }
+
+    const prevCoord = route[closestPointIndex - 1];
+    const currCoord = route[closestPointIndex];
+    const nextCoord = route[closestPointIndex + 1];
+    let newClosestPoint = route[closestPointIndex];
+    for (let i = 0; i <= 100; i++) {
+      const weightedPrevCoord = weightedCoord(prevCoord, currCoord, i * 0.01);
+      const weightedPrevDist = distanceOf(weightedPrevCoord, clickedCoord);
+      if (weightedPrevDist < dist) {
+        dist = weightedPrevDist;
+        newClosestPoint = weightedPrevCoord;
+      }
+
+      const weightedNextCoord = weightedCoord(currCoord, nextCoord, i * 0.01);
+      const weightedNextDist = distanceOf(weightedNextCoord, clickedCoord);
+      if (weightedNextDist < dist) {
+        dist = weightedNextDist;
+        newClosestPoint = weightedNextCoord;
+      }
+    }
+
+    setClosestRoutePoint(newClosestPoint);
+  }, [clickedCoord, route]);
 
   useEffect(() => {
     if (!loaded) {
@@ -150,6 +201,7 @@ function App() {
               draftBuilding={draftBuilding}
               route={route}
               markerCoord={marker}
+              closestRoutePoint={closestRoutePoint}
             />
           </Wrapper>
         </div>
